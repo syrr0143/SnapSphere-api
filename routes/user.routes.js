@@ -2,7 +2,7 @@ import express from 'express'
 import { verifyJwt } from '../middleware/auth.middleware.js'
 const router = express.Router();
 import { upload } from '../middleware/multer.middleware.js';
-import { userSignup, login, logout, getCurrentUser, updateUserProfile, forgotpassword, resetPassword, resetpasswordui, followUser, followers, getAllUsers, unfollowUser, searchUsers, deleteAccount } from '../controller/user.controller.js'
+import { userSignup, login, logout, getCurrentUser, updateUserProfile, forgotpassword, resetPassword, resetpasswordui, followUser, followers, getAllUsers, unfollowUser, searchUsers, deleteAccount, searchUserByid } from '../controller/user.controller.js'
 router.route("/")
     .post(upload.fields([{ name: "avatar", maxCount: 1 }]), userSignup)
     .get(verifyJwt, getCurrentUser)
@@ -11,6 +11,8 @@ router.route('/allUsers')
     .get(verifyJwt, getAllUsers)
 router.route('/search')
     .get(verifyJwt, searchUsers)
+router.route('/search/:userId')
+    .get(verifyJwt, searchUserByid)
 router.route('/login')
     .post(login)
 
@@ -31,5 +33,6 @@ router.route('/unfollow/:userId')
     .post(verifyJwt, unfollowUser)
 router.route('/delete')
     .delete(verifyJwt, deleteAccount)
+
 
 export default router 

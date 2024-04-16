@@ -33,7 +33,8 @@ const userSchema = new mongoose.Schema({
         ref: 'User'
     }],
     following: [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'User'
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }],
     posts: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -43,6 +44,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    savedPost: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post',
+        createdAt: { type: Date, default: Date.now }
+    }],
     resetPasswordToken: String,
     resetTokenExpires: Date,
 

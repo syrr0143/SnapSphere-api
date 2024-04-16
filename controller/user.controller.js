@@ -2,6 +2,7 @@ import express from 'express';
 import { uploadOnCloudinary } from '../utils/cloudinary.js'
 const app = express();
 import { User } from '../model/user.model.js';
+import { Post } from '../model/posts.model.js';
 
 const generateAccessToken = async (_id) => {
     try {
@@ -33,7 +34,7 @@ async function resetToken(user) {
         const resetToken = jwt.sign(payload, secret, options);
         return resetToken;
     } catch (error) {
-        return res.status(500).json({ message: `internal server error, something went wrong`, error: error.message })
+        return res.status(500).json({ message: `internal server error resetToken, something went wrong`, error: error.message })
     }
 }
 
@@ -68,7 +69,7 @@ const userSignup = async (req, res) => {
 
 
     } catch (error) {
-        return res.status(500).json({ message: `internal server error, something went wrong`, error: error.message })
+        return res.status(500).json({ message: `internal server error userSignup, something went wrong`, error: error.message })
     }
 }
 
@@ -97,7 +98,7 @@ const login = async (req, res) => {
             .cookie("token", token, options)
             .json({ message: "password matched , login successful", user: userlogging, token: token })
     } catch (error) {
-        return res.status(500).json({ message: `internal server error, something went wrong`, error: error.message })
+        return res.status(500).json({ message: `internal server error login, something went wrong`, error: error.message })
     }
 }
 
@@ -106,7 +107,7 @@ const logout = async (req, res) => {
         res.clearCookie('accesstoken');
         res.status(200).json({ message: 'logged out successfully' });
     } catch (error) {
-        return res.status(500).json({ message: `internal server error, something went wrong`, error: error.message })
+        return res.status(500).json({ message: `internal server error login, something went wrong`, error: error.message })
     }
 }
 
@@ -123,7 +124,7 @@ const getAllUsers = async (req, res) => {
         return res.status(200).json({ message: "users fetched successfully", users: allUsers });
     } catch (error) {
         console.log(error)
-        return res.status(500).json({ message: `internal server error, something went wrong`, error: error.message })
+        return res.status(500).json({ message: `internal server error getAllUsers, something went wrong`, error: error.message })
     }
 }
 const getCurrentUser = async (req, res) => {
@@ -139,7 +140,7 @@ const getCurrentUser = async (req, res) => {
         }
         return res.status(200).json({ message: "user details fetched successfully", user: userLoggedIn });
     } catch (error) {
-        return res.status(500).json({ message: `internal server error, something went wrong`, error: error.message })
+        return res.status(500).json({ message: `internal server error getCurrentUser, something went wrong`, error: error.message })
     }
 }
 
@@ -215,7 +216,7 @@ const resetpasswordui = async (req, res) => {
         </form>
         `);
     } catch (error) {
-        return res.status(500).json({ message: 'Internal server error', error: error.message });
+        return res.status(500).json({ message: 'Internal server error resetpasswordui', error: error.message });
     }
 }
 
@@ -242,7 +243,7 @@ const resetPassword = async (req, res) => {
         await user.save();
         return res.status(200).json({ message: "password reset successful, please login now" });
     } catch (error) {
-        return res.status(500).json({ message: 'internal server error occured ', error: error.message })
+        return res.status(500).json({ message: 'internal server error occured resetPassword ', error: error.message })
     }
 }
 const followUser = async (req, res) => {
@@ -276,7 +277,7 @@ const followUser = async (req, res) => {
         return res.status(200).json({ message: "User followed successfully", userfollowedBy: userfollowing, userfollowed: userToFollow });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: "Internal server error, something went wrong", error: error.message });
+        return res.status(500).json({ message: "Internal server error  followUser, something went wrong", error: error.message });
     }
 };
 
@@ -304,7 +305,7 @@ const unfollowUser = async (req, res) => {
         await userToUnfollow.save();
         return res.status(200).json({ message: "User unfollowed successfully", userunfollowedBy: user, userunfollowed: userToUnfollow });
     } catch (error) {
-        return res.status(500).json({ message: `internal server error, something went wrong`, error: error.message })
+        return res.status(500).json({ message: `internal server error unfollowUser, something went wrong`, error: error.message })
     }
 }
 
@@ -328,7 +329,7 @@ const followers = async (req, res) => {
 
         return res.status(200).json({ message: "user's follower fetched successfully ", followers: followers });
     } catch (error) {
-        return res.status(500).json({ message: "Internal server error, something went wrong", error: error.message });
+        return res.status(500).json({ message: "Internal server error followers, something went wrong", error: error.message });
     }
 };
 
@@ -345,9 +346,28 @@ const searchUsers = async (req, res) => {
 
         return res.status(200).json({ message: "Users found successfully", users: users });
     } catch (error) {
-        return res.status(500).json({ message: "Internal server error, something went wrong", error: error.message });
+        return res.status(500).json({ message: "Internal server error searchUsers, something went wrong", error: error.message });
     }
 };
+const searchUserByid = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(400).json({ message: "user not logged in" })
+        }
+        const userId = req.params.userId;
+        if (!userId) {
+            return res.status(400).json({ message: "user id is required" })
+        }
+        const foundUser = await User.findById(userId);
+        if (!foundUser) {
+            return res.status(404).json({ message: "user not found" })
+        }
+        return res.status(200).json({ message: "user found", foundUser: foundUser })
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error searchUsers, something went wrong", error: error.message });
+    }
+}
 
 const deleteAccount = async (req, res) => {
     try {
@@ -362,7 +382,7 @@ const deleteAccount = async (req, res) => {
         const deletedUser = await User.findByIdAndDelete({ _id: user._id });
         return res.status(200).json({ message: "user deleted successfully", deletedUser: deletedUser });
     } catch (error) {
-        return res.status(500).json({ message: `internal server error, something went wrong`, error: error.message })
+        return res.status(500).json({ message: `internal server error deleteAccount, something went wrong`, error: error.message })
     }
 }
 
@@ -370,4 +390,4 @@ const deleteAccount = async (req, res) => {
 
 
 
-export { userSignup, login, logout, getCurrentUser, updateUserProfile, forgotpassword, resetPassword, resetpasswordui, followUser, followers, getAllUsers, unfollowUser, searchUsers, deleteAccount }
+export { userSignup, login, logout, getCurrentUser, updateUserProfile, forgotpassword, resetPassword, resetpasswordui, followUser, followers, getAllUsers, unfollowUser, searchUsers, deleteAccount, searchUserByid }
